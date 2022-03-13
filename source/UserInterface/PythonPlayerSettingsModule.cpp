@@ -7,6 +7,7 @@
 #include "../gamelib/RaceManager.h"
 #include "PythonItem.h"
 #include "PythonPlayer.h"
+#include "PythonNetworkStream.h"
 
 CRaceMotionData& pkMotionManager = CRaceMotionData();
 static const DWORD GUILD_SKILL_DRAGONBLOOD = pkMotionManager.NAME_SKILL + 101;
