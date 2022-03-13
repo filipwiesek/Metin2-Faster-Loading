@@ -6,6 +6,7 @@
 #include "PythonSkill.h"
 #include "../gamelib/RaceManager.h"
 #include "PythonItem.h"
+#include "PythonPlayer.h"
 
 CRaceMotionData& pkMotionManager = CRaceMotionData();
 static const DWORD GUILD_SKILL_DRAGONBLOOD = pkMotionManager.NAME_SKILL + 101;
@@ -150,6 +151,7 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 {
 	CInstanceBase& pkBase = CInstanceBase();
 	CFlyingManager& pkFly = CFlyingManager::Instance();
+	CPythonNetworkStream& pkNetworkStream = CPythonNetworkStream::Instance();
 
 	char GM_MARK[FILE_MAX_NUM];
 	snprintf(GM_MARK, sizeof(GM_MARK), "%s/effect/gm.mse", LocaleService_GetLocalePath());
@@ -299,6 +301,11 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 #endif
 	};
 
+	std::vector<char*> v_vecEmoticonString = {
+		"sweat", "money", "happy", "love_s", "love_l", "angry",
+		"aha", "gloom", "sorry", "mix_back", "question", "fish"
+	};
+
 	// GM_EFFECT
 	TEffect effect;
 	effect.uiType = pkBase.EFFECT_AFFECT + 0;
@@ -316,6 +323,11 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 	for (const auto& it : m_vecFlyData)
 	{
 		pkFly.RegisterIndexedFlyData(it.dwIndex, it.byType, it.stName);
+	}
+
+	for (const auto & emotionString : v_vecEmoticonString)
+	{
+		pkNetworkStream.RegisterEmoticonString(emotionString);
 	}
 
 	return true;
