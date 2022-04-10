@@ -303,8 +303,8 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 	};
 
 	std::vector<char*> v_vecEmoticonString = {
-		"sweat", "money", "happy", "love_s", "love_l", "angry",
-		"aha", "gloom", "sorry", "mix_back", "question", "fish"
+		":sweat:", ":money:", ":happy:", ":love_s:", ":love_l:", ":angry:",
+		":aha:", ":gloom:", ":sorry:", ":mix_back:", ":question:", ":fish:"
 	};
 
 	// GM_EFFECT
