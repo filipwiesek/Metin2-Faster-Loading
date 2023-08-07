@@ -8,6 +8,7 @@ import effect
 import constInfo
 import localeInfo
 import app
+
 if app.ENABLE_CPP_PSM:
 	import cpsm
 
@@ -199,7 +200,7 @@ def __LoadGameSkill():
 
 def __LoadGameNPC():
 	try:
-		lines = pack_open("npclist.txt", "r").readlines()
+		lines = open("npclist.txt", "r").readlines()
 	except IOError:
 		import dbg
 		dbg.LogBox("LoadLocaleError(%(srcFileName)s)" % locals())
