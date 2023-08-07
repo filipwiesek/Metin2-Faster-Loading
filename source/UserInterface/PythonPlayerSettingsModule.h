@@ -67,12 +67,14 @@ class CPlayerSettingsModule
 	public:
 		const static bool LoadInitData();
 		const static bool LoadGameEffect();
-		const static bool RegisterEmotionAnis(char stFolder[FILE_MAX_NUM]);
-		const static bool LoadGeneralMotion(char stFolder[FILE_MAX_NUM]);
-		const static bool LoadGameWarrior(DWORD dwRace, char stFolder[FILE_MAX_NUM]);
-		const static bool LoadGameAssassin(DWORD dwRace, char stFolder[FILE_MAX_NUM]);
-		const static bool LoadGameSura(DWORD dwRace, char stFolder[FILE_MAX_NUM]);
-		const static bool LoadGameShaman(DWORD dwRace, char stFolder[FILE_MAX_NUM]);
+		const static bool RegisterEmotionAnis(const char* stFolder);
+		const static bool LoadGeneralMotion(const char* stFolder);
+
+		static bool LoadGameWarrior(DWORD dwRace, const char* stFolder);
+		static bool LoadGameAssassin(DWORD dwRace, const char* stFolder);
+		static bool LoadGameSura(DWORD dwRace, const char* stFolder);
+		static bool LoadGameShaman(DWORD dwRace, const char* stFolder);
+
 		const static bool LoadGameSound();
 		const static bool LoadGameSkill();
 };

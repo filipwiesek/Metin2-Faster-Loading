@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+
 #ifdef ENABLE_CPP_PSM
 #include "PythonPlayerSettingsModule.h"
 #include "InstanceBase.h"
@@ -6,10 +7,8 @@
 #include "PythonSkill.h"
 #include "../gamelib/RaceManager.h"
 #include "PythonItem.h"
-#include "PythonPlayer.h"
-#include "PythonNetworkStream.h"
 
-CRaceMotionData& pkMotionManager = CRaceMotionData();
+const CRaceMotionData& pkMotionManager = CRaceMotionData();
 static const DWORD GUILD_SKILL_DRAGONBLOOD = pkMotionManager.NAME_SKILL + 101;
 static const DWORD GUILD_SKILL_DRAGONBLESS = pkMotionManager.NAME_SKILL + 102;
 static const DWORD GUILD_SKILL_BLESSARMOR = pkMotionManager.NAME_SKILL + 103;
@@ -23,10 +22,7 @@ static const DWORD HORSE_SKILL_SPLASH = pkMotionManager.NAME_SKILL + 123;
 
 const bool CPlayerSettingsModule::LoadInitData()
 {
-	CInstanceBase & pkBase = CInstanceBase();
-	CRaceManager& pkManager = CRaceManager::Instance();
-	CPythonPlayer& pkPlayer = CPythonPlayer::Instance();
-
+	const CInstanceBase & pkBase = CInstanceBase();
 	static const std::vector<TEffect> m_vecEffectData =
 	{
 		{ pkBase.EFFECT_DUST, "", "d:/ymir work/effect/etc/dust/dust.mse" } ,
@@ -120,6 +116,7 @@ const bool CPlayerSettingsModule::LoadInitData()
 		pkBase.RegisterEffect(it.uiType, it.stBone, it.stEffect, true);
 	}
 
+	CRaceManager& pkManager = CRaceManager::Instance();
 	char szFileName[FILE_MAX_NUM];
 	for (auto& it : m_vecRaceData)
 	{	
@@ -143,16 +140,13 @@ const bool CPlayerSettingsModule::LoadInitData()
 		}
 	}
 
-	pkPlayer.RegisterEffect(pkPlayer.EFFECT_PICK, "d:/ymir work/effect/etc/click/click.mse", true);
-
 	return true;
 }
 
 const bool CPlayerSettingsModule::LoadGameEffect()
 {
-	CInstanceBase& pkBase = CInstanceBase();
+	const CInstanceBase& pkBase = CInstanceBase();
 	CFlyingManager& pkFly = CFlyingManager::Instance();
-	CPythonNetworkStream& pkNetworkStream = CPythonNetworkStream::Instance();
 
 	char GM_MARK[FILE_MAX_NUM];
 	snprintf(GM_MARK, sizeof(GM_MARK), "%s/effect/gm.mse", LocaleService_GetLocalePath());
@@ -167,7 +161,7 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 		{ pkBase.EFFECT_ELECTRIC_ATTACK, "equip_right", "d:/ymir work/effect/hit/blow_electric/light_1_weapon.mse" },
 		{ pkBase.EFFECT_ELECTRIC_HIT, "", "d:/ymir work/effect/hit/blow_electric/light_1_blow.mse" },
 		{ pkBase.EFFECT_ELECTRIC_ATTACH, "", "d:/ymir work/effect/hit/blow_electric/light_1_body.mse" },
-		{ pkBase.EFFECT_GYEONGGONG_BOOM, "Bip01", "d:/ymir work/effect/hit/gyeonggong_boom.mse" },
+		//{ pkBase.EFFECT_GYEONGGONG_BOOM, "Bip01", "d:/ymir work/effect/hit/gyeonggong_boom.mse" },
 
 		{ pkBase.EFFECT_LEVELUP, "", "d:/ymir work/effect/etc/levelup_1/level_up.mse" },
 		{ pkBase.EFFECT_SKILLUP, "", "d:/ymir work/effect/etc/skillup/skillup_1.mse" },
@@ -302,11 +296,6 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 #endif
 	};
 
-	std::vector<char*> v_vecEmoticonString = {
-		":sweat:", ":money:", ":happy:", ":love_s:", ":love_l:", ":angry:",
-		":aha:", ":gloom:", ":sorry:", ":mix_back:", ":question:", ":fish:"
-	};
-
 	// GM_EFFECT
 	TEffect effect;
 	effect.uiType = pkBase.EFFECT_AFFECT + 0;
@@ -326,15 +315,10 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 		pkFly.RegisterIndexedFlyData(it.dwIndex, it.byType, it.stName);
 	}
 
-	for (const auto & emotionString : v_vecEmoticonString)
-	{
-		pkNetworkStream.RegisterEmoticonString(emotionString);
-	}
-
 	return true;
 }
 
-const bool CPlayerSettingsModule::RegisterEmotionAnis(char stFolder[FILE_MAX_NUM])
+const bool CPlayerSettingsModule::RegisterEmotionAnis(const char* stFolder)
 {
 	CRaceManager& pkManager = CRaceManager::Instance();
 
@@ -412,7 +396,7 @@ const bool CPlayerSettingsModule::RegisterEmotionAnis(char stFolder[FILE_MAX_NUM
 	return true;
 }
 
-const bool CPlayerSettingsModule::LoadGeneralMotion(char stFolder[FILE_MAX_NUM])
+const bool CPlayerSettingsModule::LoadGeneralMotion(const char* stFolder)
 {
 	CRaceManager& pkManager = CRaceManager::Instance();
 
@@ -448,7 +432,7 @@ const bool CPlayerSettingsModule::LoadGeneralMotion(char stFolder[FILE_MAX_NUM])
 	return true;
 }
 
-const bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, char stFolder[FILE_MAX_NUM])
+bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, const char* stFolder)
 {
 	CRaceManager& pkManager = CRaceManager::Instance();
 	pkManager.SelectRace(dwRace);
@@ -722,7 +706,7 @@ const bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, char stFolder[FI
 	return true;
 }
 
-const bool CPlayerSettingsModule::LoadGameAssassin(DWORD dwRace, char stFolder[FILE_MAX_NUM])
+bool CPlayerSettingsModule::LoadGameAssassin(DWORD dwRace, const char* stFolder)
 {
 	CRaceManager& pkManager = CRaceManager::Instance();
 	pkManager.SelectRace(dwRace);
@@ -1042,7 +1026,7 @@ const bool CPlayerSettingsModule::LoadGameAssassin(DWORD dwRace, char stFolder[F
 	return true;
 }
 
-const bool CPlayerSettingsModule::LoadGameSura(DWORD dwRace, char stFolder[FILE_MAX_NUM])
+bool CPlayerSettingsModule::LoadGameSura(DWORD dwRace, const char* stFolder)
 {
 	CRaceManager& pkManager = CRaceManager::Instance();
 	pkManager.SelectRace(dwRace);
@@ -1242,7 +1226,7 @@ const bool CPlayerSettingsModule::LoadGameSura(DWORD dwRace, char stFolder[FILE_
 	return true;
 }
 
-const bool CPlayerSettingsModule::LoadGameShaman(DWORD dwRace, char stFolder[FILE_MAX_NUM])
+bool CPlayerSettingsModule::LoadGameShaman(DWORD dwRace, const char* stFolder)
 {
 	CRaceManager& pkManager = CRaceManager::Instance();
 	pkManager.SelectRace(dwRace);
