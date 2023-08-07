@@ -1,5 +1,4 @@
 #include "StdAfx.h"
-
 #ifdef ENABLE_CPP_PSM
 #include "PythonPlayerSettingsModule.h"
 #include "InstanceBase.h"
@@ -7,6 +6,8 @@
 #include "PythonSkill.h"
 #include "../gamelib/RaceManager.h"
 #include "PythonItem.h"
+#include "PythonPlayer.h"
+#include "PythonNetworkStream.h"
 
 const CRaceMotionData& pkMotionManager = CRaceMotionData();
 static const DWORD GUILD_SKILL_DRAGONBLOOD = pkMotionManager.NAME_SKILL + 101;
@@ -22,7 +23,10 @@ static const DWORD HORSE_SKILL_SPLASH = pkMotionManager.NAME_SKILL + 123;
 
 const bool CPlayerSettingsModule::LoadInitData()
 {
-	const CInstanceBase & pkBase = CInstanceBase();
+	const CInstanceBase& pkBase = CInstanceBase();
+	CRaceManager& pkManager = CRaceManager::Instance();
+	CPythonPlayer& pkPlayer = CPythonPlayer::Instance();
+
 	static const std::vector<TEffect> m_vecEffectData =
 	{
 		{ pkBase.EFFECT_DUST, "", "d:/ymir work/effect/etc/dust/dust.mse" } ,
@@ -80,27 +84,24 @@ const bool CPlayerSettingsModule::LoadInitData()
 		{ pkBase.EFFECT_PERCENT_DAMAGE2, "", "d:/ymir work/effect/hit/percent_damage2.mse" },
 		{ pkBase.EFFECT_PERCENT_DAMAGE3, "", "d:/ymir work/effect/hit/percent_damage3.mse" },
 
-#ifdef ENABLE_SPHAERA_SYSTEM:
-		{ pkBase.EFFECT_SPHAERA_ACTIVATE, "", "d:/ymir work/effect/etc/sphaera/sphaera_sky.mse" },
-#endif
 	};
 
 	static std::vector<TRaceData> m_vecRaceData =
 	{
 		{ RACE_WARRIOR_M, "warrior_m.msm", "d:/ymir work/pc/warrior/intro/" },
-		{ RACE_WARRIOR_W, "warrior_w.msm", "d:/ymir work/pc2/warrior/intro/" },		
-		
+		{ RACE_WARRIOR_W, "warrior_w.msm", "d:/ymir work/pc2/warrior/intro/" },
+
 		{ RACE_ASSASSIN_W, "assassin_w.msm", "d:/ymir work/pc/assassin/intro/" },
 		{ RACE_ASSASSIN_M, "assassin_m.msm", "d:/ymir work/pc2/assassin/intro/" },
-		
+
 		{ RACE_SURA_M, "sura_m.msm", "d:/ymir work/pc/sura/intro/" },
 		{ RACE_SURA_W, "sura_w.msm", "d:/ymir work/pc2/sura/intro/" },
-		
+
 		{ RACE_SHAMAN_W, "shaman_w.msm", "d:/ymir work/pc/shaman/intro/" },
 		{ RACE_SHAMAN_M, "shaman_m.msm", "d:/ymir work/pc2/shaman/intro/" },
 	};
 
-	
+
 	std::vector<SMotion> m_vecMotion =
 	{
 		{ pkMotionManager.NAME_INTRO_WAIT, "wait.msa", 0 },
@@ -116,10 +117,9 @@ const bool CPlayerSettingsModule::LoadInitData()
 		pkBase.RegisterEffect(it.uiType, it.stBone, it.stEffect, true);
 	}
 
-	CRaceManager& pkManager = CRaceManager::Instance();
 	char szFileName[FILE_MAX_NUM];
 	for (auto& it : m_vecRaceData)
-	{	
+	{
 		pkManager.CreateRace(it.dwRace);
 		pkManager.SelectRace(it.dwRace);
 
@@ -131,7 +131,7 @@ const bool CPlayerSettingsModule::LoadInitData()
 		{
 			return false;
 		}
-		
+
 		pRaceData->RegisterMotionMode(pkMotionManager.MODE_GENERAL);
 		for (const auto& it2 : m_vecMotion)
 		{
@@ -140,6 +140,8 @@ const bool CPlayerSettingsModule::LoadInitData()
 		}
 	}
 
+	pkPlayer.RegisterEffect(pkPlayer.EFFECT_PICK, "d:/ymir work/effect/etc/click/click.mse", true);
+
 	return true;
 }
 
@@ -147,6 +149,7 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 {
 	const CInstanceBase& pkBase = CInstanceBase();
 	CFlyingManager& pkFly = CFlyingManager::Instance();
+	CPythonNetworkStream& pkNetworkStream = CPythonNetworkStream::Instance();
 
 	char GM_MARK[FILE_MAX_NUM];
 	snprintf(GM_MARK, sizeof(GM_MARK), "%s/effect/gm.mse", LocaleService_GetLocalePath());
@@ -225,8 +228,8 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 		{ pkBase.EFFECT_REFINED + 18, "Bip01", "D:/ymir work/pc/common/effect/armor/armor_9.mse" },
 
 		{ pkBase.EFFECT_REFINED + 19, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-4-2-1.mse" },
-		{ pkBase.EFFECT_REFINED + 20, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-4-2-2.mse" },		
-		
+		{ pkBase.EFFECT_REFINED + 20, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-4-2-2.mse" },
+
 		{ pkBase.EFFECT_REFINED + 21, "Bip01", "D:/ymir work/pc/common/effect/armor/armor-5-1.mse" },
 		{ pkBase.EFFECT_REFINED + 22, "Bip01", "D:/ymir work/pc/common/effect/armor/armor_7th_01.mse" },
 
@@ -238,7 +241,7 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 		{ pkBase.EFFECT_EMOTICON + 0, "", "d:/ymir work/effect/etc/emoticon/sweat.mse" },
 		{ pkBase.EFFECT_EMOTICON + 1, "", "d:/ymir work/effect/etc/emoticon/money.mse" },
 		{ pkBase.EFFECT_EMOTICON + 2, "", "d:/ymir work/effect/etc/emoticon/happy.mse" },
-		{ pkBase.EFFECT_EMOTICON + 3, "", "d:/ymir work/effect/etc/emoticon/love_s.mse" },		
+		{ pkBase.EFFECT_EMOTICON + 3, "", "d:/ymir work/effect/etc/emoticon/love_s.mse" },
 		{ pkBase.EFFECT_EMOTICON + 4, "", "d:/ymir work/effect/etc/emoticon/love_l.mse" },
 		{ pkBase.EFFECT_EMOTICON + 5, "", "d:/ymir work/effect/etc/emoticon/angry.mse" },
 		{ pkBase.EFFECT_EMOTICON + 6, "", "d:/ymir work/effect/etc/emoticon/aha.mse" },
@@ -291,9 +294,11 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 		{ FLY_CHAIN_LIGHTNING, pkFly.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/pc/shaman/effect/pokroe.msf" },
 		{ FLY_HP_SMALL, pkFly.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/effect/etc/gathering/ga_piece_red_smallest.msf" },
 		{ FLY_SKILL_MUYEONG, pkFly.INDEX_FLY_TYPE_AUTO_FIRE, "d:/ymir work/pc/sura/effect/muyeong_fly.msf" },
-#ifdef ENABLE_QUIVER_SYSTEM:
-		{ FLY_QUIVER_ATTACK_NORMAL, pkFly.INDEX_FLY_TYPE_NORMAL, "d:/ymir work/pc/assassin/effect/arrow_02.msf" },
-#endif
+	};
+
+	std::vector<const char*> v_vecEmoticonString = {
+		":sweat:", ":money:", ":happy:", ":love_s:", ":love_l:", ":angry:",
+		":aha:", ":gloom:", ":sorry:", ":mix_back:", ":question:", ":fish:"
 	};
 
 	// GM_EFFECT
@@ -304,15 +309,20 @@ const bool CPlayerSettingsModule::LoadGameEffect()
 
 	m_vecEffectData.push_back(effect);
 	// GM_EFFECT
-	
+
 	for (const auto& it : m_vecEffectData)
 	{
 		pkBase.RegisterEffect(it.uiType, it.stBone, it.stEffect, false);
-	}	
-	
+	}
+
 	for (const auto& it : m_vecFlyData)
 	{
 		pkFly.RegisterIndexedFlyData(it.dwIndex, it.byType, it.stName);
+	}
+
+	for (const auto& emotionString : v_vecEmoticonString)
+	{
+		pkNetworkStream.RegisterEmoticonString(emotionString);
 	}
 
 	return true;
@@ -370,15 +380,15 @@ const bool CPlayerSettingsModule::RegisterEmotionAnis(const char* stFolder)
 	{
 		snprintf(szFileName, sizeof(szFileName), "%s%s%s", stFolder, "action/", it.stName);
 		pRaceData->RegisterMotionData(pkMotionManager.MODE_GENERAL, it.wMotionIndex, szFileName, it.byPercentage);
-	}	
-	
+	}
+
 	pRaceData->RegisterMotionMode(pkMotionManager.MODE_WEDDING_DRESS);
 	for (const auto& it : m_vecEmotion)
 	{
 		snprintf(szFileName, sizeof(szFileName), "%s%s%s", stFolder, "action/", it.stName);
 		pRaceData->RegisterMotionData(pkMotionManager.MODE_WEDDING_DRESS, it.wMotionIndex, szFileName, it.byPercentage);
 	}
-	
+
 	std::vector<SMotion> m_vecEmotionDress =
 	{
 		{ pkMotionManager.NAME_WAIT, "wait.msa", 0 },
@@ -403,7 +413,7 @@ const bool CPlayerSettingsModule::LoadGeneralMotion(const char* stFolder)
 	CRaceData* pRaceData = pkManager.GetSelectedRaceDataPointer();
 	if (!pRaceData)
 		return false;
-	
+
 	std::vector<SMotion> m_vecBasicMotion =
 	{
 		{ pkMotionManager.NAME_WAIT, "wait.msa", 0 },
@@ -478,7 +488,7 @@ bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, const char* stFolder)
 		{ 3, "jeongwi" },
 		{ 4, "geomgyeong" },
 		{ 5, "tanhwan" },
-		{ 6, "gihyeol" },	
+		{ 6, "gihyeol" },
 		{ 16, "gigongcham" },
 		{ 17, "gyeoksan" },
 		{ 18, "daejin" },
@@ -487,8 +497,8 @@ bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, const char* stFolder)
 		{ 21, "noegeom" },
 	};
 
-	
-	char szSkillName[FILE_MAX_NUM];
+
+	char szSkillName[FILE_MAX_NUM]{};
 	char szSkillAdd[4] = "";
 	for (WORD i = 0; i < CPythonSkill::SKILL_EFFECT_COUNT; i++)
 	{
@@ -515,7 +525,7 @@ bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, const char* stFolder)
 		snprintf(szFileName, sizeof(szFileName), "%s%s%s", stFolder, "skill/", it.stName);
 		pRaceData->RegisterMotionData(pkMotionManager.MODE_GENERAL, it.wMotionIndex, szFileName, it.byPercentage);
 	}
-	
+
 	pRaceData->ReserveComboAttack(pkMotionManager.MODE_GENERAL, COMBO_TYPE_1, 1);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_GENERAL, COMBO_TYPE_1, COMBO_INDEX_1, pkMotionManager.NAME_COMBO_ATTACK_1);
 
@@ -551,15 +561,15 @@ bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, const char* stFolder)
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_1, pkMotionManager.NAME_COMBO_ATTACK_1);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_2, pkMotionManager.NAME_COMBO_ATTACK_2);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);
-	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_4, pkMotionManager.NAME_COMBO_ATTACK_4);	
-	
+	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_4, pkMotionManager.NAME_COMBO_ATTACK_4);
+
 	pRaceData->ReserveComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_2, 5);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_2, COMBO_INDEX_1, pkMotionManager.NAME_COMBO_ATTACK_1);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_2, COMBO_INDEX_2, pkMotionManager.NAME_COMBO_ATTACK_2);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_2, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_2, COMBO_INDEX_4, pkMotionManager.NAME_COMBO_ATTACK_5);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_2, COMBO_INDEX_5, pkMotionManager.NAME_COMBO_ATTACK_7);
-	
+
 	pRaceData->ReserveComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_3, 6);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_1, pkMotionManager.NAME_COMBO_ATTACK_1);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_ONEHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_2, pkMotionManager.NAME_COMBO_ATTACK_2);
@@ -634,7 +644,7 @@ bool CPlayerSettingsModule::LoadGameWarrior(DWORD dwRace, const char* stFolder)
 		snprintf(szFileName, sizeof(szFileName), "%s%s%s", stFolder, "fishing/", it.stName);
 		pRaceData->RegisterMotionData(pkMotionManager.MODE_FISHING, it.wMotionIndex, szFileName, it.byPercentage);
 	}
-	
+
 	std::vector<SMotion> m_vecMotionHorse =
 	{
 		{ pkMotionManager.NAME_WAIT, "wait.msa", 90 },
@@ -761,7 +771,7 @@ bool CPlayerSettingsModule::LoadGameAssassin(DWORD dwRace, const char* stFolder)
 		{ 21, "seomgwang" },
 	};
 
-	char szSkillName[FILE_MAX_NUM];
+	char szSkillName[FILE_MAX_NUM]{};
 	char szSkillAdd[4] = "";
 	for (WORD i = 0; i < CPythonSkill::SKILL_EFFECT_COUNT; i++)
 	{
@@ -887,8 +897,8 @@ bool CPlayerSettingsModule::LoadGameAssassin(DWORD dwRace, const char* stFolder)
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_DUALHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_DUALHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_4, pkMotionManager.NAME_COMBO_ATTACK_5);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_DUALHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_5, pkMotionManager.NAME_COMBO_ATTACK_6);
-	pRaceData->RegisterComboAttack(pkMotionManager.MODE_DUALHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_6, pkMotionManager.NAME_COMBO_ATTACK_8);	
-	
+	pRaceData->RegisterComboAttack(pkMotionManager.MODE_DUALHAND_SWORD, COMBO_TYPE_3, COMBO_INDEX_6, pkMotionManager.NAME_COMBO_ATTACK_8);
+
 	std::vector<SMotion> m_vecMotionBow =
 	{
 		{ pkMotionManager.NAME_WAIT, "wait.msa", 70 },
@@ -993,7 +1003,7 @@ bool CPlayerSettingsModule::LoadGameAssassin(DWORD dwRace, const char* stFolder)
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_DUALHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_1, pkMotionManager.NAME_COMBO_ATTACK_1);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_DUALHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_2, pkMotionManager.NAME_COMBO_ATTACK_2);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_DUALHAND_SWORD, COMBO_TYPE_1, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);
-	
+
 	std::vector<SMotion> m_vecMotionHorseBow =
 	{
 		{ pkMotionManager.NAME_WAIT, "wait.msa", 90 },
@@ -1077,7 +1087,7 @@ bool CPlayerSettingsModule::LoadGameSura(DWORD dwRace, const char* stFolder)
 		{ 21, "mahwan" },
 	};
 
-	char szSkillName[FILE_MAX_NUM];
+	char szSkillName[FILE_MAX_NUM]{};
 	char szSkillAdd[4] = "";
 	for (WORD i = 0; i < CPythonSkill::SKILL_EFFECT_COUNT; i++)
 	{
@@ -1259,7 +1269,7 @@ bool CPlayerSettingsModule::LoadGameShaman(DWORD dwRace, const char* stFolder)
 		{ pkMotionManager.NAME_SKILL + 3, "paeryong.msa" },
 		{ pkMotionManager.NAME_SKILL + 4, "hosin_target.msa" },
 		{ pkMotionManager.NAME_SKILL + 5, "boho_target.msa" },
-		{ pkMotionManager.NAME_SKILL + 6, "gicheon_target.msa" },		
+		{ pkMotionManager.NAME_SKILL + 6, "gicheon_target.msa" },
 		{ pkMotionManager.NAME_SKILL + 16, "noejeon.msa" },
 		{ pkMotionManager.NAME_SKILL + 17, "byeorak.msa" },
 		{ pkMotionManager.NAME_SKILL + 18, "pokroe.msa" },
@@ -1289,7 +1299,7 @@ bool CPlayerSettingsModule::LoadGameShaman(DWORD dwRace, const char* stFolder)
 		{ 21, "jeungryeok" },
 	};
 
-	char szSkillName[FILE_MAX_NUM];
+	char szSkillName[FILE_MAX_NUM]{};
 	char szSkillAdd[4] = "";
 	for (WORD i = 1; i < CPythonSkill::SKILL_EFFECT_COUNT; i++)
 	{
@@ -1362,8 +1372,8 @@ bool CPlayerSettingsModule::LoadGameShaman(DWORD dwRace, const char* stFolder)
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_FAN, COMBO_TYPE_3, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_FAN, COMBO_TYPE_3, COMBO_INDEX_4, pkMotionManager.NAME_COMBO_ATTACK_5);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_FAN, COMBO_TYPE_3, COMBO_INDEX_5, pkMotionManager.NAME_COMBO_ATTACK_6);
-	pRaceData->RegisterComboAttack(pkMotionManager.MODE_FAN, COMBO_TYPE_3, COMBO_INDEX_6, pkMotionManager.NAME_COMBO_ATTACK_4);	
-	
+	pRaceData->RegisterComboAttack(pkMotionManager.MODE_FAN, COMBO_TYPE_3, COMBO_INDEX_6, pkMotionManager.NAME_COMBO_ATTACK_4);
+
 	std::vector<SMotion> m_vecMotionBell =
 	{
 		{ pkMotionManager.NAME_WAIT, "wait.msa", 0 },
@@ -1469,8 +1479,8 @@ bool CPlayerSettingsModule::LoadGameShaman(DWORD dwRace, const char* stFolder)
 	pRaceData->ReserveComboAttack(pkMotionManager.MODE_HORSE_FAN, COMBO_TYPE_1, 3);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_FAN, COMBO_TYPE_1, COMBO_INDEX_1, pkMotionManager.NAME_COMBO_ATTACK_1);
 	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_FAN, COMBO_TYPE_1, COMBO_INDEX_2, pkMotionManager.NAME_COMBO_ATTACK_2);
-	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_FAN, COMBO_TYPE_1, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);	
-	
+	pRaceData->RegisterComboAttack(pkMotionManager.MODE_HORSE_FAN, COMBO_TYPE_1, COMBO_INDEX_3, pkMotionManager.NAME_COMBO_ATTACK_3);
+
 	std::vector<SMotion> m_vecMotionHorseBell =
 	{
 		{ pkMotionManager.NAME_COMBO_ATTACK_1, "combo_01.msa", 0 },
@@ -1512,12 +1522,12 @@ const bool CPlayerSettingsModule::LoadGameSound()
 		{ CPythonItem::USESOUND_POTION, "sound/ui/eat_potion.wav" },
 		{ CPythonItem::USESOUND_PORTAL, "sound/ui/potal_scroll.wav" },
 	};
-	
+
 	CPythonItem& rkItem = CPythonItem::Instance();
 
-	for (const auto &it : m_vecSound)
-		rkItem.SetUseSoundFileName(it.dwType, it.stName);	
-	
+	for (const auto& it : m_vecSound)
+		rkItem.SetUseSoundFileName(it.dwType, it.stName);
+
 	std::vector<TSound> m_vecDropSound = {
 		{ CPythonItem::DROPSOUND_DEFAULT, "sound/ui/drop.wav" },
 		{ CPythonItem::DROPSOUND_ACCESSORY, "sound/ui/equip_ring_amulet.wav" },
@@ -1525,8 +1535,8 @@ const bool CPlayerSettingsModule::LoadGameSound()
 		{ CPythonItem::DROPSOUND_BOW, "sound/ui/equip_bow.wav" },
 		{ CPythonItem::DROPSOUND_WEAPON, "sound/ui/equip_metal_weapon.wav" },
 	};
-	
-	for (const auto &it : m_vecDropSound)
+
+	for (const auto& it : m_vecDropSound)
 		rkItem.SetDropSoundFileName(it.dwType, it.stName);
 
 	return true;
